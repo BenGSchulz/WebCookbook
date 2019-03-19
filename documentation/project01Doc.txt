@@ -1,0 +1,313 @@
+SCHEMA DOCUMENTATION
+
+My User schema consists of a name, username, and email as the main fields.
+Name is a subdocument consisting of first, middle, and last.
+This is because it's what most apps require at minimum.
+The types are all string because that's what a name/email is.
+usernames and emails for different users should be unique to avoid duplicates.
+I also have three virtual fields in my User schema.
+These are submittedRecipes, savedRecipes, and reviews.
+submittedRecipes is linked to the Recipe schema and links Recipes that contain user id in their submitter field.
+savedRecipes is linked to the Recipe schema and links Recipes that contain user id in the savedBy field.
+reviews is linked to the Review schema and links to reviews that contain user id in the reviewer field.
+The virtuals make it easy to update data between documents as they operate just on references.
+
+let nameSchema = Schema({
+  // firstName is a simple String type that is required
+  firstName: {type: String, required: true},
+  // middleName is a simple String type that is not required
+  middleName: {type: String, required: false},
+  // lastName is a simple String type that is required
+  lastName: {type: String, required: true}
+});
+
+// This is the main user schema
+let userSchema = Schema({
+  // Age is a simple number type that is required
+  name: nameSchema,
+  username: {type: String, unique: true, required: true},
+  email: {type: String, unique: true, required: true}
+}, {toJSON: {virtuals: true}});
+
+userSchema.virtual('submittedRecipes', {
+  ref: 'Recipe',
+  localField: '_id',
+  foreignField: 'submitter'
+});
+
+userSchema.virtual('savedRecipes', {
+  ref: 'Recipe',
+  localField: '_id',
+  foreignField: 'savedBy'
+});
+
+userSchema.virtual('reviews', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'reviewer'
+});
+
+
+My Recipe schema consists of:
+Name of string type (what the recipe is called) which is required because a recipe needs a name.
+A submitter which is a ObjectId referencing the User schema. This is a field that is filled when a user submits a recipe to link the user to their recipe. This is also referenced by the User virutal field submittedRecipes. This field is optional because you can also create a recipe without linking to user (i.e. site admin)
+The date that the recipe was created, this defaults to the time that the recipe object is created with an API call. It is required and is also filled by the default.
+A description of the recipe is required to tell other users more info about it.
+A pictureURL is required to show users what the product should look like.
+prepTime and cookTime are required so people know how long it will take them.
+Directions are required so that people know how to make the recipe. This is an array so that it can be split into steps.
+ingredients are required so people know what to put in a recipe. Ingredient is a subdocument that consists of the name and amount of the ingredient needed.
+savedBy is an array of ObjectIds referencing User schema. This will consist of the ids of users who have saved a recipe. Not required because some recipes may not be saved by anyone.
+Array of tags that is optional for user to categorize their recipe.
+A virtual field reviews, which references Review schema and links a recipe to all reviews that contain the recipe id in their onRecipe field. This is easy to maintain because it works on just references.
+
+let ingredientSchema = Schema({
+  ingredient: {type: String, required: true},
+  amount: {type: String, required: true}
+});
+
+let recipeSchema = Schema({
+  name: {type: String, required: true},
+  submitter: {type: Schema.Types.ObjectId, ref: 'User'},
+  date: {type: Date, required: true, default: Date.now},
+  description: {type: String, required: true},
+  pictureURL: {type: String, required: true},
+  prepTime: {type: Number, required: true},
+  cookTime: {type: Number, required: true},
+  directions: {type: [String], required: true},
+  ingredients: [ingredientSchema],
+  // reviews: [{type: Schema.Types.ObjectId, ref: 'Review'}],
+  savedBy: [{type: Schema.Types.ObjectId, ref: 'User'}],
+  tags: [String]
+}, {toJSON: {virtuals: true}});
+
+recipeSchema.virtual('reviews', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'onRecipe'
+});
+
+
+My Review schema consists of:
+A rating in number form from 0 to 5, this is required in a review because duh.
+A optional description/elaboration on the review. Some people may just put a number rating and not want to explain themselves.
+The date the review was created on the server. Required, but always filled by default value of Date.now when created.
+A reviewer that is the ObjectId of the user that submitted the review. References User schema.
+onRecipe is the ObjectId of the recipe that the review was created for. This references Review schema and is references by the reviews virtual field of a recipe to link them.
+helpfulCount is the number of people who have marked the review as helpful. this is required and is set to 0 when created.
+unhelpfulCount is the number of people who have marked the review as unhelpful. This is set to 0 when created.
+
+let reviewSchema = Schema({
+  rating: {type: Number, min: 0, max: 5, required: true},
+  description: String,
+  date: {type: Date, required: true, default: Date.now},
+  reviewer: {type: Schema.Types.ObjectId, ref: 'User'},
+  onRecipe: {type: Schema.Types.ObjectId, ref: 'Recipe'},
+  helpfulCount: {type: Number, min: 0, required: true},
+  unhelpfulCount: {type: Number, min: 0, required: true}
+});
+
+
+
+
+
+
+API DOCUMENTATION
+
+In general, I structured my API such that each object that is defined in a Schema has its own routes for CRUD operations.
+The routes always end with the plural noun/ID of the object that is getting CRUDed.
+All routes are prefixed with /api in the routes.js file.
+
+User routes:
+/users
+  This route has a get and post method.
+  A get call with this route will find all users that are in the database. Will return a 200 code all user objects found in database. Errors will send a 500 code.
+  A post call will create a single user. Will return a 201(created) status code and the created user object. Or 400 code with error.
+  Post calls require a raw JSON object in the body.
+  Here is the template for the body of a post call:
+  {
+  	"name": {
+  	 "firstName": "first",
+  	 "middleName": "middle",
+  	 "lastName": "last"
+  	 },
+  	"username": "uname1",
+  	"email": "uname1@mail.com"
+  }
+
+/users/:id
+  This route has a get, put, and delete method.
+  Must replace :id with the ObjectId of the user you want to find/update/delete
+  A get call with this route will find the user with the id specified in place of :id. Will return a 200 status and the user object if found. Or 404 if no user with matching id. Or 400 if error.
+  A put call will update the user found by the id. Will return a 200 status and the updated user object if found. Or 404 if no user with matching id. Or 400 if error
+  A put call with this route requires a raw JSON object defining user fields with updated values.
+  Template:
+    {
+    	"name": {
+    	 "firstName": "firstUpdated",
+    	 "middleName": "middleUpdated",
+    	 "lastName": "lastUpdated"
+    	 },
+    	"username": "unameUpdate",
+    	"email": "unameUpdate@mail.com"
+    }
+  A delete call will remove the user with id specified from the database. Will return 204(no content) if succeeded. Will return 404 if no user with specified id. or 400 if error.
+
+/recipes/:recipeId/users  (THIS ROUTE DOES NOT HAVE WORKING IMPLEMENTATION YET)
+  This route has a get method.
+  A get call will find all users who saved the Recipe with :recipeId. Will return 200 and list of users who saved recipe. Or 404 if no recipe found by id. or 400 if error.
+  Must replace :recipeId with the ObjectID of the recipe you want to find users who saved.
+
+
+router.get('/users', controller.index);
+router.get('/users/:id', controller.show);
+
+router.get('/recipes/:recipeId/users', controller.showAllUsersWhoSaved);
+
+router.post('/users', controller.create);
+
+router.put('/users/:id', controller.update);
+
+router.delete('/users/:id', controller.destroy);
+
+
+Recipe Routes:
+/recipes
+  This route has a get and post associated.
+  A get call with this route will find all recipes that are in the database. Will return a 200 code all recipe objects found in database. Errors will send a 500 code.
+  A post call will create a single user. Will return a 201(created) status code and the created recipe object. Or 400 code with error
+  Recipes created with this route will have no associated submitter.
+  Post calls require a raw JSON object in the body.
+  Here is the template for the body of a post call:
+    {
+      "name": "recipeName",
+      "description": "desc",
+      "pictureURL": "pic.jpg",
+      "prepTime": 00,
+      "cookTime": 00,
+      "directions": [
+      	"1. ",
+      	"2. ",
+      	"3. "],
+      "ingredients": [{"ingredient": "name", "amount": "quantity"}],
+      "reviews": [],
+      "savedBy": [],
+      "tags": ["tag1", "tag2", "tag3"]
+    }
+
+/recipes/:id
+    This route has a get, put, and delete method.
+    Must replace :id with the ObjectId of the recipe you want to find/update/delete
+    A get call with this route will find the recipe with the id specified in place of :id. Will return a 200 status and the recipe object if found. Or 404 if no recipe with matching id. Or 400 if error.
+    A put call will update the recipe found by the id. Will return a 200 status and the updated recipe object if found. Or 404 if no recipe with matching id. Or 400 if error
+    A put call with this route requires a raw JSON object defining recipe fields with updated values.
+    Template:
+      {
+        "name": "Potatoes",
+        "submitter": "username2",
+        "description": "These are tasty!!",
+        "pictureURL": "kljasdfk.jpg",
+        "prepTime": 5,
+        "cookTime": 10,
+        "directions": [
+        	"1. Peel Potatoes",
+        	"2. Cook Potatoes",
+        	"3. Eat Potatoes"],
+        "ingredients": [{"ingredient": "Potatoes", "amount": "500"}],
+        "tags": ["yum", "potato", "tasty"]
+      }
+    A delete call will remove the recipe with id specified from the database. It will also remove all reviews associated with it if there are any. Will return 204(no content) if succeeded. Will return 404 if no recipe with specified id. or 400 if error.
+
+/users/:userId/recipes
+  This route has a get and a post associated with it.
+  Must replace :userId with the ObjectId of the user you want to find recipes under or create a recipe under
+  A get call will get all recipes that the user with the specified :userId is listed as the submitter for. Will return 200 status and all recipes under user if found. Or 404 if no user with specified :userID. or 400 if error.
+  A post call will create a new recipe associated with the user with specified id as the submitter. Will return 201(created) status and the created recipe if successful. or 404 if no user with specified id. or 400 if error
+  A post call requires a raw JSON object in the body. You must put in the username of the user as the submitter
+  Template:
+    {
+      "name": "recipeName",
+      "submitter": "username of submitter",
+      "description": "recipeDesc",
+      "pictureURL": "pic.jpg",
+      "prepTime": 00,
+      "cookTime": 00,
+      "directions": [
+      	"1. ",
+      	"2. ",
+      	"3. "],
+      "ingredients": [{"ingredient": "name", "amount": "quantity"}],
+      "reviews": [], //leave empty
+      "savedBy": [], //leave empty
+      "tags": ["tag1", "tag2", "tag3"]
+    }
+
+/users/:userId/savedRecipes **(NO WORKING IMPLEMENTATION YET)**
+  This route has a get associated with it.
+  Must replace :userId with ObjectID of the user you are querying.
+  A get call will retrieve all recipes that are saved by the user specified by :userId. Will return 200 status and list of recipes if successful. Or 404 if no user with specified id. or 400 if error.
+
+router.get('/recipes', controller.index);
+router.get('/recipes/:id', controller.show);
+
+router.get('/users/:userId/recipes', controller.showAllByUser);
+router.get('/users/:userId/savedRecipes', controller.showAllSavedByUser);
+
+router.post('/recipes', controller.create);
+router.post('/users/:userId/recipes', controller.createByUser);
+
+router.put('/recipes/:id', controller.update);
+
+router.delete('/recipes/:id', controller.destroy);
+
+
+
+Reviews Routes
+/reviews
+  This route has a get associated.
+  A get call with this route will find all reviews that are in the database. Will return a 200 code all review objects found in database. Errors will send a 500 code.
+
+/reviews/:reviewId
+   This route has a get, put, and delete method.
+   Must replace :reviewId with the ObjectId of the review you want to find/update/delete
+   A get call with this route will find the review with the id specified. Will return a 200 status and the review object if found. Or 404 if no review with matching id. Or 400 if error.
+   A put call will update the review found by the id. Will return a 200 status and the updated review object if found. Or 404 if no review with matching id. Or 400 if error
+   A put call with this route requires a raw JSON object defining review fields with updated values
+   Template:
+  {
+  	"rating": 0-5,
+  	"description": "fill with desc",
+  	"reviewer": "Username of reviewer",
+  	"helpfulCount": 0, //leave 0
+  	"unhelpfulCount": 0 //leave 0
+  }
+  A delete call will remove the review with specified id. If successful will return 204(no content) status. Or 404 if no review found by id. Or 400 if error.
+  **Note: reviews are also deleted if the recipe they are associated with is deleted.
+
+/recipes/:recipeId/reviews
+  This route has a get and post associated.
+  Must replace :recipeId with the ObjectId of the recipe you are querying
+  A get call will find all the reviews that are posted under the recipe found by :recipeId. Will return 200 status and all reviews under recipe if found. Or 404 if no recipe found by :recipeId. or 400 if error
+  A post call will create a review and associate it with the recipe found by :recipeId. Will return 201(created) status and the created review if successful. Or 404 if no recipe found by :recipeId. Or 400 if error.
+  A post call requires a raw JSON object defining the review in the Body. You must use the Username of the submitting user in the reviewer field.
+  Template:
+  {
+  	"rating": 0-5,
+  	"description": "fill with desc",
+  	"reviewer": "Username of reviewer",
+  	"onRecipe": "", //leave empty
+  	"helpfulCount": 0, //leave 0
+  	"unhelpfulCount": 0 //leave 0
+  }
+
+router.get('/reviews', controller.index);
+router.get('/reviews/:reviewId', controller.show);
+
+router.get('/recipes/:recipeId/reviews', controller.showAllOnRecipe);
+
+router.post('/recipes/:recipeId/reviews', controller.create);
+
+router.put('/reviews/:reviewId', controller.update);
+
+router.delete('/reviews/:reviewId', controller.destroy);
+

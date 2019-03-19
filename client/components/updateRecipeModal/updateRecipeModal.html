@@ -1,0 +1,151 @@
+<div class="modal-content">
+  <form id="updateRecipe" name="updateRecipe" role="form" class="form-horizontal">
+    <div class="modal-header">
+      <button type="button" ng-click="updateRecipeController.cancel()" class="close"><span
+        aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+      <h4 id="myModalLabel" class="modal-title">Updating Recipe</h4>
+    </div>
+    <div class="modal-body col">
+
+      <div class="form-group">
+        <label for="name" class="col-form-label">Recipe Name</label>
+        <input id="name" name="name" required="required" ng-model="updateRecipeController.recipe.name"
+               class="form-control"/>
+      </div>
+
+      <div class="form-group">
+        <label for="description" class="col-form-label">Description</label>
+        <input id="description" name="description" required="required"
+               ng-model="updateRecipeController.recipe.description" class="form-control"/>
+      </div>
+
+      <div class="form-group">
+        <label for="picture" class="col-form-label">Picture (URL)</label>
+        <input id="picture" name="picture" required="required" ng-model="updateRecipeController.recipe.pictureURL"
+               class="form-control" type="url"/>
+      </div>
+
+      <div class="form-group">
+        <label for="prep" class="col-form-label">Prep Time (Minutes)</label>
+        <input id="prep" name="prep" required="required" ng-model="updateRecipeController.recipe.prepTime"
+               class="form-control" type="number" min="0"/>
+      </div>
+
+      <div class="form-group">
+        <label for="cook" class="col-form-label">Cook Time (Minutes)</label>
+        <input id="cook" name="cook" required="required" ng-model="updateRecipeController.recipe.cookTime"
+               class="form-control" type="number" min="0"/>
+      </div>
+
+      <div class="form-group">
+        <label for="ingredients" class="col-form-label">Ingredients</label>
+
+        <uib-accordion id="ingredients">
+          <div uib-accordion-group heading="Toggle Expand" is-open="true">
+            <table class="table table-responsive table-borderless center">
+              <thead>
+              <tr>
+                <th>Ingredient</th>
+                <th>Amount</th>
+                <th>Remove</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr ng-repeat="ingredient in updateRecipeController.recipe.ingredients">
+                <td>
+                  <input name="ingredientName" required="required"
+                           ng-model="ingredient.ingredient" class="form-control"/>
+                </td>
+                <td>
+                  <input name="ingredientQty" required="required"
+                           ng-model="ingredient.amount" class="form-control"/>
+                </td>
+                <td>
+                  <button type="button" class="btn-sm btn-danger center-block"
+                          ng-click="updateRecipeController.removeIngredient($index)">X
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <button type="button" class="btn-sm center-block" ng-click="updateRecipeController.addIngredient()">+</button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </uib-accordion>
+      </div>
+
+      <div class="form-group">
+        <label for="directions" class="col-form-label">Directions</label>
+
+        <uib-accordion id="directions">
+          <div uib-accordion-group heading="Toggle Expand" is-open="true">
+            <table class="table table-responsive table-borderless">
+              <thead class="text-center">
+              <tr>
+                <th>Step</th>
+                <th>Direction</th>
+                <th>Remove</th>
+              </tr>
+              </thead>
+              <tbody class="text-center">
+              <tr ng-repeat="localDirection in updateRecipeController.localDirections">
+                <td>{{localDirection.index}}</td>
+                <td>
+                  <input name="directionText"
+                         ng-model="localDirection.direction" class="form-control"/>
+                </td>
+                <td>
+                  <button type="button" class="btn-sm btn-danger center-block"
+                          ng-click="updateRecipeController.removeDirection($index)">X
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <button type="button" class="btn-sm center-block" ng-click="updateRecipeController.addDirection()">+</button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <!--<div ng-repeat="localDirection in updateRecipeController.localDirections">-->
+              <!--{{localDirection.index}}.&nbsp;-->
+              <!--<input name="directionText" required="directions"-->
+                     <!--ng-model="localDirection.direction" class="form-control"/>-->
+            <!--</div>-->
+          </div>
+        </uib-accordion>
+      </div>
+
+      <div class="form-group">
+        <label for="tags" class="col-form-label">Tags</label>
+        <select id="tags" name="tags" required="tags"
+                ng-model="updateRecipeController.recipe.tags[0]" class="form-control">
+          <option >Easy</option>
+          <option>Fast</option>
+          <option>Tasty</option>
+        </select>
+      </div>
+
+      <div class="modal-footer" id="modal-footer">
+        <div ng-switch="updateRecipeController.submitFail">
+          <div ng-switch-when="true" role="alert" class="alert alert-danger">
+            {{updateRecipeController.formError }}
+          </div>
+        </div>
+
+        <div ng-switch="updateRecipeController.submitted">
+          <div ng-switch-when="true" id="modalInfoSubmitted" role="alert" class="alert alert-success">
+            {{updateRecipeController.formInfo}}
+          </div>
+          <button ng-switch-when="false" ng-click="updateRecipeController.cancel()" type="button" class="btn btn-default">Cancel</button>
+          <button ng-switch-when="false" type="submit" class="btn btn-primary" ng-click="updateRecipeController.submitForm()">Update Recipe!</button>
+          <button ng-switch-when="true" ng-click="updateRecipeController.cancel()" type="button" class="btn btn-default">Close</button>
+          <button ng-switch-when="true" type="submit" class="btn btn-primary" ng-click="updateRecipeController.submitForm()">Update Recipe Again!</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

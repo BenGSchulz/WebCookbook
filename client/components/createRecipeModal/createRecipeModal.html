@@ -1,0 +1,155 @@
+<div class="modal-content">
+  <form id="createRecipe" name="createRecipeName" role="form" class="form-horizontal" ng-submit="createRecipeController.submitForm()">
+    <div class="modal-header">
+      <button type="button" ng-click="createRecipeController.cancel()" class="close"><span
+        aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+      <h4 id="myModalLabel" class="modal-title">Creating A New Recipe</h4>
+    </div>
+    <div class="modal-body">
+      <div id="modalError" role="alert" ng-show="createRecipeController.formError" class="alert alert-danger">
+        {{createRecipeController.formError }}
+      </div>
+      <!--<div id="modalInfo" role="alert" ng-show="createRecipeController.formInfo" class="alert alert-info">-->
+        <!--{{createRecipeController.formInfo }}-->
+      <!--</div>-->
+
+      <div class="form-group">
+        <label for="name" class="col-form-label">Recipe Name</label>
+        <input id="name" name="name" ng-model="createRecipeController.recipe.name" class="form-control" required/>
+      </div>
+
+      <div class="form-group">
+        <label for="description" class="col-form-label">Description</label>
+        <input id="description" name="description" ng-model="createRecipeController.recipe.description" class="form-control" required/>
+      </div>
+
+      <div class="form-group">
+        <label for="picture" class="col-form-label">Picture (URL)</label>
+        <input id="picture" name="picture" type="url" ng-model="createRecipeController.recipe.pictureURL" class="form-control" required/>
+      </div>
+
+      <div class="form-group">
+        <label for="prep" class="col-form-label">Prep Time (Minutes)</label>
+        <input id="prep" name="prep" type="number" min="0" ng-model="createRecipeController.recipe.prepTime" class="form-control" required/>
+      </div>
+
+      <div class="form-group">
+        <label for="cook" class="col-form-label">Cook Time (Minutes)</label>
+        <input id="cook" name="cook" type="number" min="0" ng-model="createRecipeController.recipe.cookTime" class="form-control" required/>
+      </div>
+
+      <div class="form-group">
+        <label for="ingredients" class="col-form-label">Ingredients</label>
+
+        <uib-accordion id="ingredients">
+          <div uib-accordion-group heading="Toggle Expand" is-open="true">
+            <table class="table table-responsive table-borderless center">
+              <thead>
+              <tr>
+                <th>Ingredient</th>
+                <th>Amount</th>
+                <th>Remove</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr ng-repeat="ingredient in createRecipeController.recipe.ingredients">
+                <td>
+                  <input name="ingredientName" ng-model="ingredient.ingredient" class="form-control" required/>
+                </td>
+                <td>
+                  <input name="ingredientQty" ng-model="ingredient.amount" class="form-control" required/>
+                </td>
+                <td>
+                  <button type="button" class="btn-sm btn-danger center-block"
+                          ng-click="createRecipeController.removeIngredient($index)">X
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <button type="button" class="btn-sm center-block" ng-click="createRecipeController.addIngredient()">+</button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </uib-accordion>
+      </div>
+
+      <div class="form-group">
+        <label for="directions" class="col-form-label">Directions</label>
+
+        <uib-accordion id="directions">
+          <div uib-accordion-group heading="Toggle Expand" is-open="true">
+            <table class="table table-responsive table-borderless">
+              <thead class="text-center">
+              <tr>
+                <th>Step</th>
+                <th>Direction</th>
+                <th>Remove</th>
+              </tr>
+              </thead>
+              <tbody class="text-center">
+              <tr ng-repeat="localDirection in createRecipeController.localDirections">
+                <td>{{localDirection.index}}</td>
+                <td>
+                  <input name="directionText" ng-model="localDirection.direction" class="form-control" required/>
+                </td>
+                <td>
+                  <button type="button" class="btn-sm btn-danger center-block"
+                          ng-click="createRecipeController.removeDirection($index)">X
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <button type="button" class="btn-sm center-block" ng-click="createRecipeController.addDirection()">+</button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <!--<div ng-repeat="localDirection in createRecipeController.localDirections">-->
+              <!--{{localDirection.index}}.&nbsp;-->
+              <!--<input name="directionText" required="directions"-->
+                     <!--ng-model="localDirection.direction" class="form-control"/>-->
+            <!--</div>-->
+          </div>
+        </uib-accordion>
+      </div>
+
+      <div class="form-group">
+        <label for="tags" class="col-form-label">Tags</label>
+        <select id="tags" name="tags"
+                ng-model="createRecipeController.recipe.tags[0]" class="form-control">
+          <option>Easy</option>
+          <option>Fast</option>
+          <option>Tasty</option>
+        </select>
+      </div>
+
+      <div class="modal-footer" id="modal-footer">
+        <div ng-switch="createRecipeName.$invalid">
+          <div ng-switch-when="true" id="modalInfoFill" role="alert" class="alert alert-warning">
+            {{createRecipeController.formInfo}}
+          </div>
+        </div>
+        <div ng-switch="createRecipeController.submitted">
+          <button ng-switch-when="false" ng-click="createRecipeController.cancel()" type="button" class="btn btn-default">Cancel</button>
+          <input ng-switch-when="false" type="submit" class="btn btn-dark" ng-disabled="createRecipeName.$invalid">
+          <!--<button ng-switch-when="false" type="submit" class="btn btn-primary"-->
+          <!--ng-click="createRecipeController.submitForm()">Create Recipe!-->
+          <!--</button>-->
+
+          <div ng-switch-when="true" id="modalInfoSubmitted" role="alert" class="alert alert-success">
+            {{createRecipeController.formInfo}}
+          </div>
+          <button ng-switch-when="true" ng-click="createRecipeController.cancel()" type="button" class="btn btn-default">Close</button>
+          <a ng-switch-when="true" href="/recipes/{{createRecipeController.id}}"
+             ng-click="createRecipeController.cancel()" type="button" class="btn btn-default">Go to Recipe</a>
+        </div>
+        <!--<button ng-click="createRecipeController.cancel()" type="button" class="btn btn-default">Cancel</button>-->
+        <!--<button type="submit" class="btn btn-primary" ng-click="createRecipeController.submitForm()">Create Recipe!</button>-->
+      </div>
+    </div>
+  </form>
+</div>

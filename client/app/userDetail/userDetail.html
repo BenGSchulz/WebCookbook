@@ -1,0 +1,27 @@
+<div class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <div>
+        <h1 class="page-header">Details for {{userDetailController.user.username}}({{ userDetailController.user._id }})</h1>
+      </div>
+      <div>
+        <a href="/users" class="btn btn-default col-xs-4 col-sm-4 col-md-4 col-lg-4">Back to All Users</a>
+        <a ng-click="userDetailController.updateUser(userDetailController.user)"
+           class="btn btn-default col-xs-4 col-sm-4 col-md-4 col-lg-4">Edit
+          This User</a>
+        <a ng-click="userDetailController.removeUser(userDetailController.user)"
+           class="btn btn-default col-xs-4 col-sm-4 col-md-4 col-lg-4">Delete
+          This User</a>
+      </div>
+      <br>
+      <hr size="10">
+      <div>
+        Username: {{userDetailController.user.username}} <br>
+        First Name: {{userDetailController.user.name.firstName}} <br>
+        Middle Name: {{userDetailController.user.name.middleName}} <br>
+        Last Name: {{userDetailController.user.name.lastName}} <br>
+        Email: {{userDetailController.user.email}} <br>
+      </div>
+    </div>
+  </div>
+</div>

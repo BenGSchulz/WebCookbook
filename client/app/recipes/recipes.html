@@ -1,0 +1,53 @@
+<div class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <div>
+        <h1 class="page-header">All Recipes Page</h1>
+      </div>
+      <span>
+        <button ng-click="recipesController.createRecipe()" type="button"
+                class="btn btn-default">Add Your Own Recipe!</button>
+      </span>
+      <hr size="5">
+      <div>
+        <table class="table table-responsive table-borderless table-hover">
+          <tbody>
+          <tr ng-repeat="recipe in recipesController.displayedRecipes">
+            <td class="col-xs-12 col-sm-6 col-md-6 col-lg-6" align="center" valign="middle">
+              <a href="/recipes/{{recipe._id}}">
+
+                <table class="table table-responsive table-borderless">
+                  <thead>
+                  <tr>
+                    <th class="text-center">
+                      {{recipe.name}}
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <img src="{{recipe.pictureURL}}" class="img-responsive" alt="Recipe Image" width="256" height="256">
+                  </tbody>
+                </table>
+
+                <!--<img src="{{recipe.pictureURL}}" class="img-responsive" alt="Recipe Image" width="256" height="256">-->
+              </a>
+            </td>
+            <!--<td class="hidden-xs col-sm-6 col-md-6 col-lg-6 text-center align-middle">-->
+            <!--<a href="/recipes/{{recipe._id}}">{{recipe.name}}</a>-->
+            <!--</td>-->
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="text-center">
+        <!--Make a Current page array of recipes, put subset of all recipes into current page based on the page number-->
+        <ul uib-pagination boundary-links="true" ng-model="recipesController.currentPage"
+            class="pagination-lg" total-items="recipesController.totalRecipes"
+            items-per-page="recipesController.recipesPerPage" ng-change="recipesController.changePage()"
+            previous-text="&lsaquo;"
+            next-text="&rsaquo;" first-text="&laquo;"
+            last-text="&raquo;"></ul>
+      </div>
+    </div>
+  </div>
+</div>

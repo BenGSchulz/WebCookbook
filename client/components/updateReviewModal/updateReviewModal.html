@@ -1,0 +1,40 @@
+<div class="modal-content">
+  <form id="updateReview" name="updateReview" role="form" class="form-horizontal">
+    <div class="modal-header">
+      <button type="button" ng-click="updateReviewController.cancel()" class="close"><span
+        aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+      <h4 id="myModalLabel" class="modal-title">Updating Review</h4>
+    </div>
+    <div class="modal-body col">
+      <div role="alert" ng-show="updateReviewController.formError" class="alert alert-danger">
+        {{updateReviewController.formError }}
+      </div>
+      <div role="alert" ng-show="updateReviewController.formInfo" class="alert alert-info">
+        {{updateReviewController.formInfo }}
+      </div>
+
+      <div class="form-group">
+        <label for="rating" class="col-form-label">Rating</label>
+        <span uib-rating id="rating" ng-model="updateReviewController.review.rating" max="5"
+              on-hover="hoveringOver(value)"
+              on-leave="overStar = null"
+              titles="['Boo!','Poor','Meh','Good','YAY']" aria-labelledby="default-rating"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="description" class="col-form-label">Details</label>
+        <textarea id="description" class="form-control" ng-model="updateReviewController.review.description"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer" id="modal-footer">
+      <div ng-switch="updateReviewController.updated">
+        <button ng-switch-when="false" ng-click="updateReviewController.cancel()" type="button" class="btn btn-default">Cancel</button>
+        <button ng-switch-when="false" type="submit" class="btn btn-primary" ng-click="updateReviewController.submitForm()">Update Review!
+        </button>
+
+        <button ng-switch-when="true" ng-click="updateReviewController.cancel()" type="button" class="btn btn-default">Close</button>
+        <button ng-switch-when="true" type="submit" class="btn btn-primary" ng-click="updateReviewController.submitForm()">Update Review Again!</button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,14 @@
+https://docs.mongodb.com/manual/reference/method/js-cursor/
+
+https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/
+
+https://stackoverflow.com/questions/36766956/what-is-a-cursor-in-mongodb
+
+https://www.quora.com/What-is-cursor-in-MongoDB-and-its-use
+
+**The response of a find query is given as a mem ref to the result**
+
+**Can assign to variable to access methods on the reference**
+
+**Use cursor.close() to exit cursor and free resources**
+

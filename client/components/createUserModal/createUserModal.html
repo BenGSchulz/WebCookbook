@@ -1,0 +1,47 @@
+<div class="modal-content">
+  <form id="createUser" name="createUser" role="form" class="form-horizontal">
+    <div class="modal-header">
+      <button type="button" ng-click="createUserController.cancel()" class="close"><span
+        aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+      <h4 id="myModalLabel" class="modal-title">Creating A New User</h4>
+    </div>
+    <div class="modal-body">
+      <div role="alert" ng-show="createUserController.formError" class="alert alert-danger">{{createUserController.formError }}</div>
+      <div role="alert" ng-show="createUserController.formInfo" class="alert alert-info">{{createUserController.formInfo }}</div>
+      <div class="form-group">
+        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 ">
+          <label for="username" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">Username</label>
+          <input id="username" name="username" required="required" ng-model="createUserController.user.username" class="form-control"/>
+        </div>
+
+        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 ">
+          <label for="firstName" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">First Name</label>
+          <input id="firstName" name="firstName" required="required" ng-model="createUserController.user.name.firstName" class="form-control"/>
+        </div>
+
+        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 ">
+          <label for="middleName" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">Middle Name</label>
+          <input id="middleName" name="middleName" ng-model="createUserController.user.name.middleName" class="form-control"/>
+        </div>
+
+        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 ">
+          <label for="lastName" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">Last Name</label>
+          <input id="lastName" name="lastName" required="required" ng-model="createUserController.user.name.lastName" class="form-control"/>
+        </div>
+
+        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 ">
+          <label for="email" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">Email</label>
+          <input id="email" name="email" required="required" ng-model="createUserController.user.email" class="form-control"/>
+        </div>
+      </div>
+      <div class="modal-footer" id="modal-footer">
+        <div ng-switch="createUserController.submitted">
+          <button ng-switch-when="false" ng-click="createUserController.cancel()" type="button" class="btn btn-default">Cancel</button>
+          <button ng-switch-when="false" type="submit" class="btn btn-primary" ng-click="createUserController.submitForm()">Create User!</button>
+          <button ng-switch-when="true" ng-click="createUserController.cancel()" type="button" class="btn btn-default">Close</button>
+          <a ng-switch-when="true" href="/users/{{createUserController.id}}" ng-click="createUserController.cancel()" type="button" class="btn btn-default">Go to User</a>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
